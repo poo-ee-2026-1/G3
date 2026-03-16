@@ -1,2 +1,3 @@
 # G3
-##  Sistema de Biblioteca
+##  Projeto de Sistema de Biblioteca
+Participantes: Victor Giuliano Novaes, Mariana Sousa e Taís dos Santos.
