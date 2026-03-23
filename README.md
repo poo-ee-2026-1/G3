@@ -4,18 +4,22 @@ Participantes: Victor Giuliano Novaes, Mariana Sousa e Taís dos Santos.
 
 
 **OBJETIVO**  
+Este projeto será desenvolvido em Java, visando colocar em prática os conceitos de programação orientada à objetos 
 Consiste em um projeto de sistema de biblioteca que visa a organização de livros - vizualização de acervo, pesquisa de títulos, empréstimo e controle de disponibilidade.
 
-**FUNCIONALIDADES**
-- Acervo de livros  
-- Cadastro de títulos  
-- Controle de disponibilidade  
-- Sistema de empréstimo  
+|**FUNCIONALIDADES**||
+|----|----|
+| Acervo de livros | Pesquisa de títulos, autores e códigos|  
+| Cadastro de títulos | Adicionar e retirar livros do acervo|  
+| Controle de disponibilidade | Datas de devolução, disponibilidade de títulos|   
+| Sistema de empréstimo | Alterar status do livro (indisponíivel/disponível) e cobrança por atraso|  
 
 **CRONOGRAMA**  
-1ª Entrega: rascunho inicial do projeto e read.me, cronograma e divisão de tarefas (23/03)  
-2ª Entrega: catálogo base de livros e funcionalidade - acervo (06/04)  
-3ª Entrega: funcionalidade - cadastro de livros (20/04)  
-4ª Entrega: funcionalidade - empréstimo e controle de disponibilidade (04/05)  
-5ª Entrega: testagem, revisão de projeto e conclusão de read.me (18/05)  
-Entrega Final: projeto completo e revisado 01/06
+|PRAZO|DESCRIÇÃO|
+|---|---|
+|1ª Entrega (23/03)| Rascunho inicial do projeto e read.me, cronograma e divisão de tarefas|  
+|2ª Entrega (06/04)| Catálogo base de livros e funcionalidade - acervo|  
+|3ª Entrega (20/04)| Funcionalidade - cadastro de livros|  
+|4ª Entrega (04/05)| Funcionalidade - empréstimo e controle de disponibilidade|  
+|5ª Entrega (18/05)| Testagem, revisão de projeto e conclusão de read.me|  
+|Entrega Final (01/06)| Apresentação do projeto completo e revisado|
