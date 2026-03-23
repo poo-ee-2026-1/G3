@@ -4,8 +4,7 @@ Participantes: Victor Giuliano Novaes, Mariana Sousa e Taís dos Santos.
 
 
 **OBJETIVO**  
-Este projeto será desenvolvido em Java, visando colocar em prática os conceitos de programação orientada à objetos 
-Consiste em um projeto de sistema de biblioteca que visa a organização de livros - vizualização de acervo, pesquisa de títulos, empréstimo e controle de disponibilidade.
+Este projeto será desenvolvido em Java, visando colocar em prática os conceitos de programação orientada à objetos, o trabalho consiste em um sistema de biblioteca que visa a organização de livros - vizualização de acervo, pesquisa de títulos, empréstimo e controle de disponibilidade.
 
 |**FUNCIONALIDADES**||
 |----|----|
