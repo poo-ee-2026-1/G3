@@ -29,9 +29,12 @@ Por enquanto nossas classes principais são Biblioteca, Livro e Serviços.
 **PILARES DE POO**
 -Encapsulamento
 O encapsulamento está presente na classe Livro, onde todos os atributos são declarados como private, impedindo o acesso direto a eles. Para ler ou modificar esses dados, é necessário utilizar os métodos getters e setters, como getTitulo() e setDisponibilidade(), protegendo assim as informações do objeto.
+
 -Abstração
 A abstração aparece na separação de responsabilidades entre as classes. A classe Serviços concentra as operações do sistema, como adicionar e listar livros, enquanto a classe Livro representa apenas os dados relevantes de um livro. Com isso, o método main não precisa saber como cada operação funciona, apenas as chama quando necessário.
+
 -Herança
 Ainda será adicionada...
+
 -Polimorfismo
 O polimorfismo aparece na classe Livro através da sobrescrita do método toString() com a anotação @Override. O método original, herdado de Object, foi reescrito com um comportamento personalizado para exibir os dados do livro. Assim, quando o método é chamado na listagem, o Java utiliza automaticamente essa versão personalizada no lugar da original.
