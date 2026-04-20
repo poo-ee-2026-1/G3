@@ -24,9 +24,11 @@ Este projeto será desenvolvido em Java, visando colocar em prática os conceito
 |Entrega Final (01/06)| Apresentação do projeto completo e revisado|
 
 **CLASSES**
+
 Por enquanto nossas classes principais são Biblioteca, Livro e Serviços.
 
 **PILARES DE POO**
+
 -Encapsulamento
 O encapsulamento está presente na classe Livro, onde todos os atributos são declarados como private, impedindo o acesso direto a eles. Para ler ou modificar esses dados, é necessário utilizar os métodos getters e setters, como getTitulo() e setDisponibilidade(), protegendo assim as informações do objeto.
 
