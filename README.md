@@ -24,7 +24,7 @@ Este projeto será desenvolvido em Java, visando colocar em prática os conceito
 |Entrega Final (01/06)| Apresentação do projeto completo e revisado|
 
 **CLASSES**  
-Nossas classes principais são Biblioteca, Livro, Serviços e Usuário. além disso temos a classe funcionário e cliente.
+Nossas classes principais são Biblioteca, Livro, Serviços e Usuário. Além disso temos a classe funcionário e cliente.
 
 **PILARES DE POO**  
 - ENCAPSULAMENTO   
