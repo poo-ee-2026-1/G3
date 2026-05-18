@@ -8,11 +8,20 @@ public class Biblioteca {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ArrayList<Livro> livros = new ArrayList<>();
+        // Acervo inicial de livros
+        livros.add(new Livro(1, "O Morro dos Ventos Uivantes", "Emily Brontë", "Romance", 1));
+        livros.add(new Livro(2, "O Nome do Vento", "Patrick Rothfuss", "Fantasia", 2));
+        livros.add(new Livro(3, "Duna", "Frank Herbert", "Ficção Científica", 3));
+        livros.add(new Livro(4, "A Garota no Trem", "Paula Hawkins", "Suspense", 4));
+        livros.add(new Livro(5, "O Iluminado", "Stephen King", "Terror", 5));
+        livros.add(new Livro(6, "O Conde de Monte Cristo", "Alexandre Dumas", "Aventura", 6));
+        int proximoIdLivro = 7; // Próximo ID disponível para novos livros
+
         ArrayList<Usuario> usuarios = new ArrayList<>();
         Serviços serviços = new Serviços();
         
         // Adicionar usuário administrador padrão
-        usuarios.add(new Usuario("Admin", "admin@biblioteca.com", "123", "Funcionário"));
+        usuarios.add(new Funcionario("Admin", "admin@biblioteca.com", "123"));
         
         Usuario usuarioLogado = null;
         boolean sair = false;
@@ -57,7 +66,7 @@ public class Biblioteca {
                         serviços.listarLivros(livros);
                         break;
                     case 2:
-                        Livro novo = serviços.adicionarLivro(livros.size() + 1, scanner, usuarioLogado);
+                        Livro novo = serviços.adicionarLivro(proximoIdLivro++, scanner, usuarioLogado);
                         if (novo != null) livros.add(novo);
                         break;
                     case 3:
@@ -73,6 +82,10 @@ public class Biblioteca {
                         serviços.devolverLivro(livros, id);
                         break;
                     case 5:
+                        System.out.print("Digite o ID do livro que deseja excluir: ");
+                        id = scanner.nextInt();
+                        scanner.nextLine();
+                        serviços.excluirLivro(livros, id, usuarioLogado);
                         break;
                     case 6:
                         usuarioLogado = null; // Logout
