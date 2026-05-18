@@ -7,7 +7,7 @@ public class Serviços {
 
     public static int opcao(Scanner scanner, Usuario usuario) {
         System.out.println("\n=== SISTEMA DE BIBLIOTECA ===");
-        System.out.println("Usuário logado: " + usuario.getNome() + " [" + usuario.getCargo() + "]");
+        System.out.println("Usuário logado: " + usuario.getNome() + " [" + (usuario instanceof Funcionario ? "Funcionário" : "Cliente") + "]");
         System.out.println("1 - Listar livros");
         System.out.println("2 - Adicionar livro");
         System.out.println("3 - Emprestar livro");
@@ -34,7 +34,7 @@ public class Serviços {
     }
 
     public Livro adicionarLivro(int id_livro, Scanner scanner, Usuario usuario) {
-        if (!usuario.isFuncionario()) {
+        if (!(usuario instanceof Funcionario)) {
             System.out.println("\n[ERRO] Você não tem permissão para adicionar livros! (Apenas Funcionários)");
             return null;
         }
@@ -42,8 +42,31 @@ public class Serviços {
         String titulo = scanner.nextLine();
         System.out.print("Digite o autor do livro: ");
         String autor = scanner.nextLine();
+
+        String[] generos = {"Romance", "Fantasia", "Ficção Científica", "Suspense", "Terror", "Aventura", "Outros"};
+        System.out.println("\nEscolha o gênero do livro:");
+        for (int i = 0; i < generos.length; i++) {
+            System.out.println((i + 1) + " - " + generos[i]);
+        }
+        System.out.print("Opção de gênero: ");
+        int escolhaGenero = 0;
+        try {
+            escolhaGenero = scanner.nextInt();
+        } catch (Exception e) {
+            System.out.println("[AVISO] Opção inválida. Gênero 'Outros' selecionado por padrão.");
+            escolhaGenero = generos.length; // Define como 'Outros'
+        }
+        scanner.nextLine(); // Limpar buffer
+
+        if (escolhaGenero < 1 || escolhaGenero > generos.length) {
+            System.out.println("[AVISO] Opção fora do intervalo. Gênero 'Outros' selecionado por padrão.");
+            escolhaGenero = generos.length; // Define como 'Outros'
+        }
+        String generoEscolhido = generos[escolhaGenero - 1];
+        int secaoAtribuida = escolhaGenero; // A seção é o número do gênero escolhido
+
         System.out.println("Livro adicionado com sucesso!");
-        return new Livro(id_livro, titulo, autor);
+        return new Livro(id_livro, titulo, autor, generoEscolhido, secaoAtribuida);
     }
 
     public void emprestarLivro(ArrayList<Livro> livros, int id) {
@@ -70,6 +93,21 @@ public class Serviços {
                 } else {
                     System.out.println("O livro '" + livro.getTitulo() + "' já está na biblioteca.");
                 }
+                return;
+            }
+        }
+        System.out.println("Livro com ID " + id + " não encontrado.");
+    }
+
+    public void excluirLivro(ArrayList<Livro> livros, int id, Usuario usuario) {
+        if (!(usuario instanceof Funcionario)) {
+            System.out.println("\n[ERRO] Você não tem permissão para excluir livros! (Apenas Funcionários)");
+            return;
+        }
+        for (int i = 0; i < livros.size(); i++) {
+            if (livros.get(i).getId() == id) {
+                System.out.println("Livro '" + livros.get(i).getTitulo() + "' removido com sucesso!");
+                livros.remove(i);
                 return;
             }
         }
@@ -109,8 +147,11 @@ public class Serviços {
         }
         scanner.nextLine();
         
-        String cargo = (tipo == 2) ? "Funcionário" : "Cliente";
         System.out.println("Cadastro realizado com sucesso!");
-        return new Usuario(nome, email, senha, cargo);
+        if (tipo == 2) {
+            return new Funcionario(nome, email, senha);
+        } else {
+            return new Cliente(nome, email, senha);
+        }
     }
 }
