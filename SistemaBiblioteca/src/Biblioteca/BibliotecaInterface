@@ -1,0 +1,517 @@
+package Biblioteca;
+
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.table.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+public class BibliotecaInterface extends JFrame {
+
+    // ── Dados ──────────────────────────────────────────────────────────────────
+    private final ArrayList<Livro> livros = new ArrayList<>();
+    private final ArrayList<Usuario> usuarios = new ArrayList<>();
+    private Usuario usuarioLogado = null;
+    private int proximoId = 1;
+
+
+    // ── Componentes principais ─────────────────────────────────────────────────
+    private JTable tabela;
+    private DefaultTableModel modeloTabela;
+    private JLabel lblStatus;
+    private JPanel painelBotoes;
+    private JLabel lblUsuarioLogado;
+
+    // ── Paleta de cores ────────────────────────────────────────────────────────
+    private static final Color COR_FUNDO        = new Color(245, 247, 250);
+    private static final Color COR_HEADER       = new Color(30, 60, 114);
+    private static final Color COR_HEADER_TEXT  = Color.WHITE;
+    private static final Color COR_BOTAO_ADD    = new Color(39, 174, 96);
+    private static final Color COR_BOTAO_EMP    = new Color(41, 128, 185);
+    private static final Color COR_BOTAO_DEV    = new Color(243, 156, 18);
+    private static final Color COR_BOTAO_EXC    = new Color(192, 57, 43);
+    private static final Color COR_BOTAO_SAIR   = new Color(127, 140, 141);
+    private static final Color COR_LINHA_PAR    = new Color(236, 240, 245);
+    private static final Color COR_LINHA_IMPAR  = Color.WHITE;
+    private static final Color COR_DISPONIVEL   = new Color(39, 174, 96);
+    private static final Color COR_EMPRESTADO   = new Color(192, 57, 43);
+
+    // ── Construtor ─────────────────────────────────────────────────────────────
+    public BibliotecaInterface() {
+        configurarJanela();
+        // Usuário padrão para testes
+        usuarios.add(new Funcionario("Admin", "admin@biblioteca.com", "123"));
+        // Acervo inicial de livros
+        livros.add(new Livro(proximoId++, "O Morro dos Ventos Uivantes", "Emily Brontë", "Romance", 1));
+        livros.add(new Livro(proximoId++, "O Nome do Vento", "Patrick Rothfuss", "Fantasia", 2));
+        livros.add(new Livro(proximoId++, "Duna", "Frank Herbert", "Ficcao Cientifica", 3));
+        livros.add(new Livro(proximoId++, "A Garota no Trem", "Paula Hawkins", "Suspense", 4));
+        livros.add(new Livro(proximoId++, "O Iluminado", "Stephen King", "Terror", 5));
+        livros.add(new Livro(proximoId++, "O Conde de Monte Cristo", "Alexandre Dumas", "Aventura", 6));
+        abrirTelaLogin();
+    }
+
+    private void configurarJanela() {
+        setTitle("Sistema de Biblioteca");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1000, 700);
+        setMinimumSize(new Dimension(900, 650));
+        setLocationRelativeTo(null);
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {}
+    }
+
+    private void encerrarSistema() {
+        int confirm = JOptionPane.showConfirmDialog(null, 
+            "Deseja realmente encerrar o programa?", "Encerrar", 
+            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (confirm == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+
+    // ── Tela de Login ──────────────────────────────────────────────────────────
+    private void abrirTelaLogin() {
+        JDialog loginDlg = new JDialog(this, "Login", true);
+        loginDlg.setSize(480, 450);
+        loginDlg.setLocationRelativeTo(null);
+        loginDlg.setLayout(new BorderLayout());
+
+        JPanel pnl = new JPanel(new GridBagLayout());
+        pnl.setBackground(COR_FUNDO);
+        pnl.setBorder(new EmptyBorder(30, 40, 30, 40));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 5, 15, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel lblTitulo = new JLabel("Biblioteca", JLabel.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        lblTitulo.setForeground(COR_HEADER);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        pnl.add(lblTitulo, gbc);
+
+        gbc.gridwidth = 1; gbc.gridy = 1;
+        JLabel lblEmail = new JLabel("Email:");
+        lblEmail.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        pnl.add(lblEmail, gbc);
+        
+        JTextField txtEmail = new JTextField(20);
+        estilizarCampo(txtEmail);
+        gbc.gridx = 1; pnl.add(txtEmail, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        JLabel lblSenha = new JLabel("Senha:");
+        lblSenha.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        pnl.add(lblSenha, gbc);
+        
+        JPasswordField txtSenha = new JPasswordField(20);
+        estilizarCampo(txtSenha);
+        gbc.gridx = 1; pnl.add(txtSenha, gbc);
+
+        // Painel de botões
+        JPanel pnlAcoes = new JPanel(new GridLayout(1, 2, 15, 0));
+        pnlAcoes.setOpaque(false);
+        JButton btnEntrar = criarBotao("Entrar", COR_BOTAO_EMP, "");
+        JButton btnEncerrar = criarBotao("Encerrar", COR_BOTAO_EXC, "");
+        pnlAcoes.add(btnEntrar);
+        pnlAcoes.add(btnEncerrar);
+
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        gbc.insets = new Insets(30, 5, 10, 5);
+        pnl.add(pnlAcoes, gbc);
+
+        JButton btnCadastrar = new JButton("Criar nova conta");
+        btnCadastrar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnCadastrar.setForeground(COR_HEADER);
+        btnCadastrar.setBorderPainted(false);
+        btnCadastrar.setContentAreaFilled(false);
+        btnCadastrar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        gbc.gridy = 4; gbc.insets = new Insets(10, 5, 5, 5);
+        pnl.add(btnCadastrar, gbc);
+
+        btnEntrar.addActionListener(e -> {
+            String email = txtEmail.getText().trim();
+            String senha = new String(txtSenha.getPassword());
+            for (Usuario u : usuarios) {
+                if (u.getEmail().equals(email) && u.getSenha().equals(senha)) {
+                    usuarioLogado = u;
+                    loginDlg.dispose();
+                    construirInterfacePrincipal();
+                    setVisible(true);
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(loginDlg, "Credenciais inválidas!", "Erro", JOptionPane.ERROR_MESSAGE);
+        });
+
+        btnEncerrar.addActionListener(e -> encerrarSistema());
+        btnCadastrar.addActionListener(e -> abrirTelaCadastro(loginDlg));
+
+        loginDlg.add(pnl, BorderLayout.CENTER);
+        loginDlg.setVisible(true);
+    }
+
+    // ── Tela de Cadastro ───────────────────────────────────────────────────────
+    private void abrirTelaCadastro(JDialog parent) {
+        JDialog cadDlg = new JDialog(parent, "Cadastro", true);
+        cadDlg.setSize(520, 550);
+        cadDlg.setLocationRelativeTo(parent);
+        cadDlg.setLayout(new BorderLayout());
+
+        JPanel pnl = new JPanel(new GridBagLayout());
+        pnl.setBackground(COR_FUNDO);
+        pnl.setBorder(new EmptyBorder(30, 40, 30, 40));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(12, 5, 12, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel lblT = new JLabel("Novo Cadastro", JLabel.CENTER);
+        lblT.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblT.setForeground(COR_HEADER);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        pnl.add(lblT, gbc);
+
+        gbc.gridwidth = 1; 
+        gbc.gridy = 1; pnl.add(new JLabel("Nome:"), gbc);
+        JTextField tN = new JTextField(20); estilizarCampo(tN); gbc.gridx = 1; pnl.add(tN, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2; pnl.add(new JLabel("Email:"), gbc);
+        JTextField tE = new JTextField(20); estilizarCampo(tE); gbc.gridx = 1; pnl.add(tE, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 3; pnl.add(new JLabel("Senha:"), gbc);
+        JPasswordField tS = new JPasswordField(20); estilizarCampo(tS); gbc.gridx = 1; pnl.add(tS, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 4; pnl.add(new JLabel("Cargo:"), gbc);
+        JComboBox<String> cbC = new JComboBox<>(new String[]{"Cliente", "Funcionário"});
+        cbC.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        gbc.gridx = 1; pnl.add(cbC, gbc);
+
+        JPanel pnlB = new JPanel(new GridLayout(1, 2, 15, 0));
+        pnlB.setOpaque(false);
+        JButton btnS = criarBotao("Salvar", COR_BOTAO_ADD, "");
+        JButton btnC = criarBotao("Voltar", COR_BOTAO_SAIR, "");
+        pnlB.add(btnS); pnlB.add(btnC);
+
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2;
+        gbc.insets = new Insets(35, 5, 5, 5);
+        pnl.add(pnlB, gbc);
+
+        btnS.addActionListener(e -> {
+            if (tN.getText().isEmpty() || tE.getText().isEmpty() || new String(tS.getPassword()).isEmpty()) {
+                JOptionPane.showMessageDialog(cadDlg, "Preencha todos os campos!"); return;
+            }
+            String tipoUsuario = (String)cbC.getSelectedItem();
+            if ("Funcionário".equals(tipoUsuario)) {
+                usuarios.add(new Funcionario(tN.getText(), tE.getText(), new String(tS.getPassword())));
+            } else {
+                usuarios.add(new Cliente(tN.getText(), tE.getText(), new String(tS.getPassword())));
+            }
+            JOptionPane.showMessageDialog(cadDlg, "Cadastro realizado com sucesso!"); cadDlg.dispose();
+        });
+        btnC.addActionListener(e -> cadDlg.dispose());
+
+        cadDlg.add(pnl, BorderLayout.CENTER);
+        cadDlg.setVisible(true);
+    }
+
+    // ── Interface Principal ────────────────────────────────────────────────────
+    private void construirInterfacePrincipal() {
+        JPanel principal = new JPanel(new BorderLayout());
+        principal.add(criarHeader(), BorderLayout.NORTH);
+        principal.add(criarPainelTabela(), BorderLayout.CENTER);
+        principal.add(criarPainelBotoes(), BorderLayout.SOUTH);
+        setContentPane(principal);
+        
+        // Garantir que a tabela seja carregada com os livros existentes ao entrar
+        atualizarTabela();
+        
+        revalidate();
+        repaint();
+    }
+
+    private JPanel criarHeader() {
+        JPanel h = new JPanel(new BorderLayout());
+        h.setBackground(COR_HEADER);
+        h.setBorder(new EmptyBorder(25, 35, 25, 35));
+
+        JLabel t = new JLabel("Sistema de Biblioteca");
+        t.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        t.setForeground(COR_HEADER_TEXT);
+
+        lblUsuarioLogado = new JLabel("Usuário: " + usuarioLogado.getNome() + " [" + (usuarioLogado instanceof Funcionario ? "Funcionário" : "Cliente") + "]");
+        lblUsuarioLogado.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        lblUsuarioLogado.setForeground(new Color(200, 220, 255));
+
+        JPanel txts = new JPanel(new GridLayout(2, 1, 0, 5));
+        txts.setOpaque(false);
+        txts.add(t); txts.add(lblUsuarioLogado);
+
+        JPanel botoesH = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10)); // Aumentado o espaçamento
+        botoesH.setOpaque(false);
+        JButton btnLogoff = new JButton("Trocar Usuário");
+        btnLogoff.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        
+        JButton btnSair = new JButton("Encerrar");
+        btnSair.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnSair.setBackground(Color.WHITE); // Fundo branco para destacar o texto
+        btnSair.setForeground(new Color(192, 57, 43)); // Texto em Vermelho Forte
+        btnSair.setFocusPainted(false);
+        btnSair.setBorder(BorderFactory.createLineBorder(new Color(192, 57, 43), 2)); // Borda vermelha
+        btnSair.setPreferredSize(new Dimension(110, 35)); // Aumentado para garantir visibilidade total
+
+        btnLogoff.addActionListener(e -> { setVisible(false); abrirTelaLogin(); });
+        btnSair.addActionListener(e -> encerrarSistema());
+
+        botoesH.add(btnLogoff); botoesH.add(btnSair);
+
+        h.add(txts, BorderLayout.WEST);
+        h.add(botoesH, BorderLayout.EAST);
+        return h;
+    }
+
+    private JPanel criarPainelTabela() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(COR_FUNDO);
+        p.setBorder(new EmptyBorder(20, 35, 10, 35));
+
+        modeloTabela = new DefaultTableModel(new String[]{"ID", "Título", "Autor", "Gênero", "Seção", "Status"}, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        tabela = new JTable(modeloTabela);
+        configurarTabela();
+
+        JScrollPane s = new JScrollPane(tabela);
+        s.setBorder(BorderFactory.createLineBorder(new Color(200, 210, 225)));
+        s.getViewport().setBackground(Color.WHITE);
+
+        JPanel busca = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 15));
+        busca.setOpaque(false);
+        JLabel lblP = new JLabel("Pesquisar:  ");
+        lblP.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        JTextField tB = new JTextField(35); 
+        estilizarCampo(tB);
+        tB.addKeyListener(new KeyAdapter() { @Override public void keyReleased(KeyEvent e) { filtrarTabela(tB.getText()); }});
+        busca.add(lblP); busca.add(tB);
+
+        p.add(busca, BorderLayout.NORTH);
+        p.add(s, BorderLayout.CENTER);
+
+        lblStatus = new JLabel("Total de livros: 0");
+        lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblStatus.setBorder(new EmptyBorder(15, 0, 0, 0));
+        p.add(lblStatus, BorderLayout.SOUTH);
+        return p;
+    }
+
+    private void configurarTabela() {
+        tabela.setRowHeight(40);
+        tabela.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tabela.setSelectionBackground(new Color(210, 230, 250));
+        tabela.setSelectionForeground(Color.BLACK);
+        tabela.setShowVerticalLines(false);
+        tabela.setGridColor(new Color(230, 230, 230));
+        
+        JTableHeader h = tabela.getTableHeader();
+        h.setPreferredSize(new Dimension(0, 45));
+        h.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
+                JLabel l = (JLabel) super.getTableCellRendererComponent(t, v, s, f, r, c);
+                l.setBackground(COR_HEADER); l.setForeground(Color.WHITE);
+                l.setFont(new Font("Segoe UI", Font.BOLD, 15));
+                l.setHorizontalAlignment(JLabel.CENTER);
+                l.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(255, 255, 255, 30)));
+                return l;
+            }
+        });
+
+        tabela.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
+                Component comp = super.getTableCellRendererComponent(t, v, s, f, r, c);
+                if (!s) comp.setBackground(r % 2 == 0 ? COR_LINHA_PAR : COR_LINHA_IMPAR);
+                if (c == 3 && v != null) {
+                    boolean disp = v.toString().equals("Disponível");
+                    comp.setForeground(disp ? COR_DISPONIVEL : COR_EMPRESTADO);
+                    comp.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                } else {
+                    comp.setForeground(new Color(50, 50, 50));
+                }
+                ((JLabel)comp).setBorder(new EmptyBorder(0, 15, 0, 15));
+                return comp;
+            }
+        });
+    }
+
+    private JPanel criarPainelBotoes() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 30));
+        p.setBackground(new Color(230, 235, 240));
+        p.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 210, 225)));
+        
+        JButton bA = criarBotao("Adicionar", COR_BOTAO_ADD, "");
+        JButton bE = criarBotao("Emprestar", COR_BOTAO_EMP, "");
+        JButton bD = criarBotao("Devolver", COR_BOTAO_DEV, "");
+        JButton bX = criarBotao("Excluir", COR_BOTAO_EXC, "");
+
+        bA.addActionListener(e -> abrirDialogoAdicionar());
+        bE.addActionListener(e -> abrirDialogoEmprestimo());
+        bD.addActionListener(e -> abrirDialogoDevolucao());
+        bX.addActionListener(e -> abrirDialogoExcluir());
+
+        if (usuarioLogado instanceof Funcionario) p.add(bA);
+        p.add(bE); p.add(bD);
+        if (usuarioLogado instanceof Funcionario) p.add(bX);
+
+        return p;
+    }
+
+    // ── Dialogos de Ação ───────────────────────────────────────────────────────
+    private void abrirDialogoAdicionar() {
+        JDialog d = criarDialogo("Adicionar Livro", 520, 380);
+        JPanel f = criarPainelForm();
+        JTextField t = new JTextField(20); estilizarCampo(t);
+        JTextField a = new JTextField(20); estilizarCampo(a);
+        String[] generos = {"Romance", "Fantasia", "Ficcao Cientifica", "Suspense", "Terror", "Aventura", "Outros"};
+        JComboBox<String> g = new JComboBox<>(generos);
+        g.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        adicionarLinha(f, "Titulo:", t); 
+        adicionarLinha(f, "Autor:", a);
+        adicionarLinha(f, "Genero:", g);
+        JButton btn = criarBotao("Salvar", COR_BOTAO_ADD, "");
+        btn.addActionListener(e -> {
+            if(t.getText().trim().isEmpty()) return;
+            int secao = g.getSelectedIndex() + 1;
+            livros.add(new Livro(proximoId++, t.getText().trim(), a.getText().trim(), (String)g.getSelectedItem(), secao));
+            atualizarTabela(); d.dispose();
+        });
+        d.add(f, BorderLayout.CENTER); d.add(criarRodapeDialogo(btn, new JButton("Cancelar")), BorderLayout.SOUTH);
+        d.setVisible(true);
+    }
+
+    private void abrirDialogoEmprestimo() {
+        int r = tabela.getSelectedRow();
+        String idI = (r >= 0) ? modeloTabela.getValueAt(r, 0).toString() : "";
+        JDialog d = criarDialogo("Emprestar", 420, 260);
+        JPanel f = criarPainelForm();
+        JTextField t = new JTextField(idI, 10); estilizarCampo(t);
+        adicionarLinha(f, "ID do Livro:", t);
+        JButton btn = criarBotao("Confirmar", COR_BOTAO_EMP, "");
+        btn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(t.getText().trim());
+                for(Livro l : livros) if(l.getId() == id) {
+                    if(l.getDisponibilidade()) { l.setDisponibilidade(false); atualizarTabela(); d.dispose(); return; }
+                    else { JOptionPane.showMessageDialog(d, "Livro já emprestado!"); return; }
+                }
+                JOptionPane.showMessageDialog(d, "Livro não encontrado!");
+            } catch(Exception ex) { JOptionPane.showMessageDialog(d, "ID inválido!"); }
+        });
+        d.add(f, BorderLayout.CENTER); d.add(criarRodapeDialogo(btn, new JButton("Cancelar")), BorderLayout.SOUTH);
+        d.setVisible(true);
+    }
+
+    private void abrirDialogoDevolucao() {
+        int r = tabela.getSelectedRow();
+        String idI = (r >= 0) ? modeloTabela.getValueAt(r, 0).toString() : "";
+        JDialog d = criarDialogo("Devolver", 420, 260);
+        JPanel f = criarPainelForm();
+        JTextField t = new JTextField(idI, 10); estilizarCampo(t);
+        adicionarLinha(f, "ID do Livro:", t);
+        JButton btn = criarBotao("Confirmar", COR_BOTAO_DEV, "");
+        btn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(t.getText().trim());
+                for(Livro l : livros) if(l.getId() == id) {
+                    if(!l.getDisponibilidade()) { l.setDisponibilidade(true); atualizarTabela(); d.dispose(); return; }
+                    else { JOptionPane.showMessageDialog(d, "Livro já está na biblioteca!"); return; }
+                }
+                JOptionPane.showMessageDialog(d, "Livro não encontrado!");
+            } catch(Exception ex) { JOptionPane.showMessageDialog(d, "ID inválido!"); }
+        });
+        d.add(f, BorderLayout.CENTER); d.add(criarRodapeDialogo(btn, new JButton("Cancelar")), BorderLayout.SOUTH);
+        d.setVisible(true);
+    }
+
+    private void abrirDialogoExcluir() {
+        int r = tabela.getSelectedRow();
+        String idI = (r >= 0) ? modeloTabela.getValueAt(r, 0).toString() : "";
+        JDialog d = criarDialogo("Excluir", 420, 260);
+        JPanel f = criarPainelForm();
+        JTextField t = new JTextField(idI, 10); estilizarCampo(t);
+        adicionarLinha(f, "ID do Livro:", t);
+        JButton btn = criarBotao("Excluir", COR_BOTAO_EXC, "");
+        btn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(t.getText().trim());
+                Livro alvo = null;
+                for(Livro l : livros) if(l.getId() == id) alvo = l;
+                if(alvo != null) { 
+                    if(JOptionPane.showConfirmDialog(d, "Excluir \"" + alvo.getTitulo() + "\"?") == 0) {
+                        livros.remove(alvo); atualizarTabela(); d.dispose(); 
+                    }
+                } else JOptionPane.showMessageDialog(d, "Não encontrado!");
+            } catch(Exception ex) { JOptionPane.showMessageDialog(d, "ID inválido!"); }
+        });
+        d.add(f, BorderLayout.CENTER); d.add(criarRodapeDialogo(btn, new JButton("Cancelar")), BorderLayout.SOUTH);
+        d.setVisible(true);
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    private void atualizarTabela() {
+        modeloTabela.setRowCount(0);
+        for (Livro l : livros) modeloTabela.addRow(new Object[]{l.getId(), l.getTitulo(), l.getAutor(), l.getGenero(), l.getSecao(), l.getDisponibilidade() ? "Disponível" : "Emprestado"});
+        lblStatus.setText("Total de livros no acervo: " + livros.size());
+    }
+
+    private void filtrarTabela(String f) {
+        modeloTabela.setRowCount(0);
+        String filter = f.toLowerCase();
+        for (Livro l : livros) if (filter.isEmpty() || l.getTitulo().toLowerCase().contains(filter) || l.getAutor().toLowerCase().contains(filter))
+            modeloTabela.addRow(new Object[]{l.getId(), l.getTitulo(), l.getAutor(), l.getGenero(), l.getSecao(), l.getDisponibilidade() ? "Disponível" : "Emprestado"});
+    }
+
+    private JDialog criarDialogo(String t, int w, int h) {
+        JDialog d = new JDialog(this, t, true); d.setSize(w, h); d.setLocationRelativeTo(this); return d;
+    }
+
+    private JPanel criarPainelForm() {
+        JPanel p = new JPanel(new GridBagLayout()); p.setBackground(COR_FUNDO); p.setBorder(new EmptyBorder(25, 25, 25, 25)); return p;
+    }
+
+    private void adicionarLinha(JPanel p, String l, JComponent c) {
+        GridBagConstraints g = new GridBagConstraints(); g.insets = new Insets(10, 10, 10, 10); g.anchor = GridBagConstraints.WEST;
+        int row = p.getComponentCount() / 2;
+        JLabel label = new JLabel(l); label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        g.gridx = 0; g.gridy = row; p.add(label, g);
+        g.gridx = 1; g.fill = GridBagConstraints.HORIZONTAL; g.weightx = 1.0; p.add(c, g);
+    }
+
+    private JPanel criarRodapeDialogo(JButton bP, JButton bC) {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15)); 
+        p.setBackground(new Color(240, 240, 240));
+        p.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(210, 210, 210)));
+        bC.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        p.add(bC); p.add(bP);
+        bC.addActionListener(e -> ((JDialog)SwingUtilities.getWindowAncestor(bC)).dispose()); return p;
+    }
+
+    private void estilizarCampo(JTextField c) {
+        c.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        c.setPreferredSize(new Dimension(220, 35));
+        c.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)), new EmptyBorder(5, 10, 5, 10)));
+    }
+
+    private JButton criarBotao(String t, Color c, String tt) {
+        JButton b = new JButton(t); b.setBackground(c); b.setForeground(Color.WHITE);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 14)); b.setFocusPainted(false);
+        b.setBorderPainted(false); b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setPreferredSize(new Dimension(160, 45)); 
+        b.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { b.setBackground(c.darker()); }
+            public void mouseExited(MouseEvent e) { b.setBackground(c); }
+        });
+        return b;
+    }
+
+    public static void main(String[] args) { SwingUtilities.invokeLater(BibliotecaInterface::new); }
+}
